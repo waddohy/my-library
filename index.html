@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مكتبتي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#dfe6e3;--ink:#1d2a2c;--mute:#566669;--card:#f3f6f5;--line:#b4c2bf;--board:#8a6a4b;--accent:#2f5d62;--on-accent:#fff;--danger:#9a2f3b;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#162023;--ink:#e4ecea;--mute:#9db0ad;--card:#213034;--line:#34484b;--board:#5c4833;--accent:#6fb3b8;--on-accent:#0f1d1f;--danger:#e68a95;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#162023;--ink:#e4ecea;--mute:#9db0ad;--card:#213034;--line:#34484b;--board:#5c4833;--accent:#6fb3b8;--on-accent:#0f1d1f;--danger:#e68a95;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 Tajawal,system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:22px 16px 190px}
+h1{font:600 46px/1.2 "Reem Kufi",Tajawal,sans-serif;margin:0}
+#count{margin:2px 0 20px;color:var(--mute)}
+.add{display:grid;gap:10px;margin-bottom:22px}
+input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+input::placeholder{color:var(--mute)}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:8px;padding:11px 16px;font-weight:700;background:var(--accent);color:var(--on-accent)}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.danger{color:var(--danger);border-color:var(--danger)}
+:is(button,input):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#msg{margin:0;min-height:1.6em;color:var(--danger);font-size:14px}
+#q{margin-bottom:18px}
+.shelf{display:flex;flex-wrap:wrap;column-gap:3px;row-gap:12px;padding:0 6px 12px;min-height:176px;background:repeating-linear-gradient(to bottom,transparent 0 164px,var(--board) 164px 176px)}
+.slot{height:164px;display:flex;align-items:flex-end}
+.spine{writing-mode:vertical-rl;font:700 15px/1.2 Amiri,serif;color:#f6f1e7;border:0;border-radius:3px 3px 1px 1px;padding:10px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start;box-shadow:inset 3px 0 0 rgba(255,255,255,.14),inset -3px 0 0 rgba(0,0,0,.2);transition:transform .15s,opacity .15s}
+.c0{background:#2f4b63}.c1{background:#7a2e3a}.c2{background:#5b6b3a}.c3{background:#8f6516}.c4{background:#5a3e6b}.c5{background:#2e6b6b}
+.spine.read{border-top:7px solid rgba(255,255,255,.5)}
+.spine.dim{opacity:.2}
+.spine.sel{transform:translateY(-12px);outline:2px solid var(--accent);outline-offset:2px}
+#empty{text-align:center;color:var(--mute);margin:14px 0 0}
+#note{color:var(--mute);font-size:13px;text-align:center;margin:18px 0 0}
+#sheet{position:fixed;inset:auto 0 0 0;background:var(--card);border-top:1px solid var(--line);padding:16px 18px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+#sheet[hidden]{display:none}
+.sheet-in{max-width:720px;margin:0 auto}
+#st{font:600 22px/1.4 "Reem Kufi",Tajawal,sans-serif;margin:0;overflow-wrap:anywhere}
+#sa{margin:0 0 12px;color:var(--mute)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1 1 auto}
+.shelf[hidden],.grid[hidden]{display:none}
+.tools{display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.tools #q{margin:0;flex:1}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.seg button{border:0;background:transparent;color:var(--ink);padding:10px 12px;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:16px 10px;padding-bottom:12px}
+.cover{position:relative;aspect-ratio:2/3;width:100%;border:0;padding:0;border-radius:6px 3px 3px 6px;overflow:hidden;color:#f6f1e7;box-shadow:0 2px 8px rgba(0,0,0,.28),inset -4px 0 0 rgba(0,0,0,.18);transition:opacity .15s}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .tx{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:10px 12px;text-align:center}
+.cover .tt{font:700 16px/1.35 Amiri,serif;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cover .au{font-size:12px;opacity:.85}
+.cover.read::after{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:rgba(255,255,255,.55)}
+.cover.dim{opacity:.2}
+.cover.sel{outline:2px solid var(--accent);outline-offset:2px}
+.pv{display:flex;align-items:center;gap:10px}
+.pv .btn{flex:1}
+.bk{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.bk .btn{font-size:14px;padding:8px 12px}
+.pv img{width:40px;height:60px;object-fit:cover;border-radius:3px}
+@media (prefers-reduced-motion:reduce){.spine{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>مكتبتي</h1>
+  <p id="count"></p>
+
+  <section class="add" aria-label="إضافة كتاب">
+    <input id="t" placeholder="اسم الكتاب" autocomplete="off" maxlength="120" aria-label="اسم الكتاب">
+    <input id="a" placeholder="المؤلف (اختياري)" autocomplete="off" maxlength="80" aria-label="المؤلف">
+    <div class="pv"><button id="pc" class="btn ghost" type="button">أو ارفع صورة الغلاف بنفسك</button><img id="pi" alt="" hidden></div>
+    <button id="addBtn" class="btn" type="button">أضف الكتاب</button>
+    <p id="msg" role="status"></p>
+  </section>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="ابحث بالاسم أو المؤلف" aria-label="بحث في المكتبة">
+    <div class="seg" role="group" aria-label="طريقة العرض">
+      <button id="vs" type="button" aria-pressed="true">الرفّ</button>
+      <button id="vg" type="button" aria-pressed="false">الأغلفة</button>
+    </div>
+  </div>
+  <div id="shelf" class="shelf"></div>
+  <div id="grid" class="grid" hidden></div>
+  <p id="empty"></p>
+  <p id="note"></p>
+  <div class="bk"><button id="ex" class="btn ghost" type="button">حفظ نسخة احتياطية</button><button id="imb" class="btn ghost" type="button">استرجاع نسخة</button></div>
+</main>
+
+<aside id="sheet" hidden aria-live="polite">
+  <div class="sheet-in">
+    <h2 id="st"></h2>
+    <p id="sa"></p>
+    <div class="row">
+      <button id="rd" class="btn" type="button"></button>
+      <button id="fc" class="btn ghost" type="button"></button>
+      <button id="cv" class="btn ghost" type="button"></button>
+      <button id="dl" class="btn ghost danger" type="button">احذف</button>
+      <button id="cl" class="btn ghost" type="button">إغلاق</button>
+    </div>
+  </div>
+</aside>
+<input id="fi" type="file" accept="image/*" hidden>
+<input id="im" type="file" accept="application/json,.json" hidden>
+
+<script>
+const $ = id => document.getElementById(id);
+const LS = 'library:books';
+let books = [], sel = null, mode = 'loading', col = null, arm = false, view = 'shelf', pend = '', pick = 'new';
+
+const hash = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const norm = s => s.toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+const num = n => n.toLocaleString('ar-EG');
+const msg = t => { $('msg').textContent = t; };
+const cur = () => books.find(b => b.id === sel);
+
+function loadLocal() {
+  try { books = JSON.parse(localStorage.getItem(LS) || '[]'); } catch (e) { books = []; }
+  if (!Array.isArray(books)) books = [];
+}
+function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(books)); } catch (e) {} }
+
+function countText() {
+  const n = books.length, r = books.filter(b => b.read).length;
+  const c = n === 0 ? 'لا كتب بعد' : n === 1 ? 'كتاب واحد' : n === 2 ? 'كتابان' : n <= 10 ? num(n) + ' كتب' : num(n) + ' كتابًا';
+  return n ? c + '، المقروء منها ' + num(r) : c;
+}
+
+function render() {
+  const q = norm($('q').value.trim());
+  const sh = $('shelf'), gr = $('grid');
+  sh.replaceChildren();
+  gr.replaceChildren();
+  sh.hidden = view !== 'shelf';
+  gr.hidden = view !== 'grid';
+  $('vs').setAttribute('aria-pressed', view === 'shelf' ? 'true' : 'false');
+  $('vg').setAttribute('aria-pressed', view === 'grid' ? 'true' : 'false');
+  let shown = 0;
+  for (const b of books) {
+    const h = hash(b.id);
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    const sp = document.createElement('button');
+    sp.type = 'button';
+    sp.className = 'spine c' + (h % 6) + (b.read ? ' read' : '') + (b.id === sel ? ' sel' : '');
+    sp.style.height = Math.min(160, 92 + b.title.length * 3) + 'px';
+    sp.style.width = (36 + ((h >> 3) % 3) * 6) + 'px';
+    const hit = !q || norm(b.title + ' ' + (b.author || '')).includes(q);
+    if (!hit) sp.classList.add('dim'); else shown++;
+    sp.textContent = b.title;
+    sp.setAttribute('aria-label', b.title + (b.author ? '، ' + b.author : ''));
+    sp.onclick = () => { sel = sel === b.id ? null : b.id; arm = false; render(); };
+    slot.append(sp);
+    sh.append(slot);
+    const cd = document.createElement('button');
+    cd.type = 'button';
+    cd.className = 'cover c' + (h % 6) + (b.read ? ' read' : '') + (b.id === sel ? ' sel' : '') + (hit ? '' : ' dim');
+    if (b.cover) {
+      const im = document.createElement('img');
+      im.src = b.cover; im.alt = '';
+      cd.append(im);
+    } else {
+      const tx = document.createElement('span'); tx.className = 'tx';
+      const tt = document.createElement('span'); tt.className = 'tt'; tt.textContent = b.title; tx.append(tt);
+      if (b.author) { const au = document.createElement('span'); au.className = 'au'; au.textContent = b.author; tx.append(au); }
+      cd.append(tx);
+    }
+    cd.setAttribute('aria-label', sp.getAttribute('aria-label'));
+    cd.onclick = sp.onclick;
+    gr.append(cd);
+  }
+  $('count').textContent = mode === 'loading' ? '' : countText();
+  $('empty').textContent = mode === 'loading' ? 'جارٍ تحميل مكتبتك…'
+    : !books.length ? 'رفّك فارغ. اكتب اسم أول كتاب في الأعلى وأضفه.'
+    : (q && !shown) ? 'لا نتيجة لهذا البحث.' : '';
+  $('note').textContent = mode === 'local' ? 'تُحفظ كتبك على هذا الجهاز فقط.' : '';
+
+  const b = cur();
+  $('sheet').hidden = !b;
+  if (b) {
+    $('st').textContent = b.title;
+    $('sa').textContent = b.author || 'المؤلف غير مسجّل';
+    $('cv').textContent = 'ارفع صورة غلاف'; $('fc').textContent = 'ابحث عن الغلاف';
+    $('rd').textContent = b.read ? 'تمّت قراءته' : 'علّمه كمقروء';
+    $('rd').classList.toggle('ghost', !b.read);
+    $('rd').setAttribute('aria-pressed', b.read ? 'true' : 'false');
+    $('dl').textContent = arm ? 'تأكيد الحذف' : 'احذف';
+  }
+}
+
+async function addBook() {
+  if (mode === 'loading') { msg('انتظر لحظة حتى تُحمَّل مكتبتك.'); return; }
+  const title = $('t').value.trim(), author = $('a').value.trim();
+  if (!title) { msg('اكتب اسم الكتاب أولًا.'); $('t').focus(); return; }
+  const b = { title, author, read: false, added: Date.now(), cover: pend };
+  $('addBtn').disabled = true;
+  if (!b.cover) { msg('أبحث عن الغلاف…'); b.cover = await findCover(title, author); }
+  $('addBtn').disabled = false;
+  try {
+    if (mode === 'db') await col.add(b);
+    else { b.id = 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); books.unshift(b); saveLocal(); render(); }
+    $('t').value = ''; $('a').value = ''; pend = ''; showPend(); msg(''); $('t').focus();
+  } catch (e) { msg('تعذّر حفظ الكتاب. حاول مرة أخرى.'); }
+}
+
+async function toggleRead() {
+  const b = cur(); if (!b) return;
+  try {
+    if (mode === 'db') await col.doc(b.id).update({ read: !b.read });
+    else { b.read = !b.read; saveLocal(); render(); }
+  } catch (e) { msg('تعذّر حفظ التغيير. حاول مرة أخرى.'); }
+}
+
+async function removeBook() {
+  const b = cur(); if (!b) return;
+  if (!arm) { arm = true; render(); return; }
+  try {
+    if (mode === 'db') await col.doc(b.id).delete();
+    else { books = books.filter(x => x.id !== b.id); saveLocal(); }
+    sel = null; arm = false; render();
+  } catch (e) { msg('تعذّر حذف الكتاب. حاول مرة أخرى.'); }
+}
+
+function toCover(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onerror = () => rej(new Error('read'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => rej(new Error('img'));
+      img.onload = () => {
+        const s = Math.min(1, 300 / img.width, 450 / img.height);
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.width * s));
+        c.height = Math.max(1, Math.round(img.height * s));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function showPend() {
+  $('pi').hidden = !pend;
+  if (pend) $('pi').src = pend;
+  $('pc').textContent = pend ? 'غيّر صورة الغلاف' : 'أو ارفع صورة الغلاف بنفسك';
+}
+async function setCover(b, data) {
+  try {
+    if (mode === 'db') await col.doc(b.id).update({ cover: data });
+    else { b.cover = data; saveLocal(); render(); }
+  } catch (e) { msg('تعذّر حفظ الغلاف. حاول مرة أخرى.'); }
+}
+function setView(v) {
+  view = v;
+  try { localStorage.setItem('library:view', v); } catch (e) {}
+  render();
+}
+
+$('pc').onclick = () => { pick = 'new'; $('fi').click(); };
+$('cv').onclick = () => { pick = 'sheet'; $('fi').click(); };
+$('fi').onchange = async () => {
+  const f = $('fi').files[0];
+  $('fi').value = '';
+  if (!f) return;
+  try {
+    const d = await toCover(f);
+    if (pick === 'new') { pend = d; showPend(); }
+    else { const b = cur(); if (b) await setCover(b, d); }
+  } catch (e) { msg('تعذّر قراءة الصورة. جرّب صورة أخرى.'); }
+};
+$('vs').onclick = () => setView('shelf');
+$('vg').onclick = () => setView('grid');
+const GB_KEY = ''; // اختياري: مفتاح Google Books API مجاني لزيادة الحد اليومي
+
+async function findCover(title, author) {
+  const qs = author ? ['intitle:' + title + ' inauthor:' + author, 'intitle:' + title] : ['intitle:' + title];
+  for (const q of qs) {
+    try {
+      const url = 'https://www.googleapis.com/books/v1/volumes?maxResults=5&printType=books&q=' + encodeURIComponent(q) + (GB_KEY ? '&key=' + GB_KEY : '');
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const j = await r.json();
+      for (const it of j.items || []) {
+        const l = it.volumeInfo && it.volumeInfo.imageLinks;
+        const u = l && (l.thumbnail || l.smallThumbnail);
+        if (u) return u.replace('http://', 'https://').replace('&edge=curl', '');
+      }
+    } catch (e) {}
+  }
+  return '';
+}
+
+$('fc').onclick = async () => {
+  const b = cur(); if (!b) return;
+  $('fc').textContent = 'أبحث…';
+  const u = await findCover(b.title, b.author);
+  if (u) await setCover(b, u);
+  else { $('fc').textContent = 'لم أجد غلافًا'; setTimeout(render, 1800); }
+};
+
+$('ex').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(books)], { type: 'application/json' }));
+  a.download = 'my-library.json';
+  a.click();
+};
+$('imb').onclick = () => $('im').click();
+$('im').onchange = async () => {
+  const f = $('im').files[0]; $('im').value = '';
+  if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!Array.isArray(d)) throw new Error('bad');
+    const ids = new Set(books.map(b => b.id));
+    for (const b of d) {
+      if (!b || !b.title || ids.has(b.id)) continue;
+      books.push({ id: b.id || 'l' + Math.random().toString(36).slice(2), title: String(b.title), author: String(b.author || ''), read: !!b.read, added: b.added || Date.now(), cover: String(b.cover || '') });
+    }
+    books.sort((x, y) => y.added - x.added);
+    saveLocal(); render();
+    alert('تم استرجاع النسخة.');
+  } catch (e) { alert('ملف النسخة غير صالح.'); }
+};
+
+$('addBtn').onclick = addBook;
+$('t').onkeydown = $('a').onkeydown = e => { if (e.key === 'Enter') addBook(); };
+$('q').oninput = render;
+$('rd').onclick = toggleRead;
+$('dl').onclick = removeBook;
+$('cl').onclick = () => { sel = null; arm = false; render(); };
+
+function init() {
+  try { view = localStorage.getItem('library:view') === 'grid' ? 'grid' : 'shelf'; } catch (e) {}
+  mode = 'local'; loadLocal(); render();
+}
+init();
+</script>
+</body>
+</html>
